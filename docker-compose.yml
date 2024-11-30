@@ -1,0 +1,22 @@
+services:
+  engine:
+    build:
+      context: .
+    volumes:
+      - ./log:/app/log
+    command: python engine.py
+    container_name: engine
+    env_file:
+      - .env
+    restart: always
+
+  webapp:
+    build:
+      context: .
+    volumes:
+      - ./log:/app/log
+    command: python webApp.py
+    container_name: webapp
+    env_file:
+      - .env
+    restart: always
