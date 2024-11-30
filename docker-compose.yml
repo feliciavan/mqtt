@@ -3,11 +3,18 @@ services:
     build:
       context: .
     volumes:
+      # For keeping logs outside containers
       - ./log:/app/log
+      # For local time
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     command: python engine.py
     container_name: engine
     env_file:
       - .env
+    # For local time
+    environment:
+      - TZ=America/Vancouver
     restart: always
 
   webapp:
@@ -15,8 +22,12 @@ services:
       context: .
     volumes:
       - ./log:/app/log
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     command: python webApp.py
     container_name: webapp
     env_file:
       - .env
+    environment:
+      - TZ=America/Vancouver
     restart: always

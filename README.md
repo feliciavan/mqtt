@@ -1,16 +1,30 @@
 # A Rules Engine with MQTT Broker and Winter Supplement Web App
 
+- [A Rules Engine with MQTT Broker and Winter Supplement Web App](#a-rules-engine-with-mqtt-broker-and-winter-supplement-web-app)
+  - [Software Language](#software-language)
+  - [Prerequisites](#prerequisites)
+  - [System Structure](#system-structure)
+  - [How to run the Engine](#how-to-run-the-engine)
+    - [Download project](#download-project)
+    - [Build the Docker images](#build-the-docker-images)
+    - [Start the containers](#start-the-containers)
+      - [Self-specified](#self-specified)
+        - [Check Docker logs](#check-docker-logs)
+      - [Assignment-specified](#assignment-specified)
+        - [Check Docker logs](#check-docker-logs-1)
+
+
 ## Software Language
 
 This project is written in Python.
 
 ## Prerequisites
 
-This project is running inside Docker. Please install Docker and Docker Compose in your environment. 
+This project runs inside Docker. Please install Docker and Docker Compose in your environment. 
 
 ## System Structure
 
-This system consists of the Winter Supplement Web App (WSWA), an MQTT broker and the rules engine. The system is shown as follows.
+The system structure is shown as follows.
 
 ```mermaid
 graph LR
@@ -22,9 +36,11 @@ graph LR
   A -.-> |Subscribe BRE/calculateWinterSupplementOutput/| B
 ```
 
-In the WSWA, users input their data, and click submit button. WSWA works as a MQTT client and publishes this message of user input to the MQTT broker. The topic of this MQTT message is `BRE/calculateWinterSupplementInput/`. My engine also works as a MQTT client and subscribe to this topic to receive this message. My engine then will process the data based on the rules of winter supplement. My engine publishes the calculated data to the topic `Subscribe BRE/calculateWinterSupplementOutput/`. And the WSWA subscribes to this topic to get the message.
+This system consists of the Winter Supplement Web App (WSWA), an MQTT broker and the rules engine, where the engine is my main develop content. In the WSWA, users input their data, and click submit button. WSWA works as a MQTT client and publishes this message of user input to the MQTT broker. The topic of this MQTT message is `BRE/calculateWinterSupplementInput/`. The engine also works as a MQTT client and subscribes to this topic to receive this message. After receiving the message, the engine processes the data based on the rules of winter supplement. Then the engine publishes the calculated data to the topic `Subscribe BRE/calculateWinterSupplementOutput/`. And the WSWA subscribes to this topic to get the message.
 
-In order to develop the engine more conveniently, I made the mock version of the WSWA. It works as an MQTT client. Both my engine and the mock WSWA are running inside the Docker containers.
+> In order to develop the engine more conveniently, I made the mock version of the WSWA. The MQTT topics are different from the assignment-specified ones. Because the MQTT broker is the same to all developers, I don't want to mix my design with others. 
+
+> In order to deploy and run the project more easily, both the engine and the mock WSWA run inside the Docker containers.
 
 ## How to run the Engine
 
@@ -34,25 +50,24 @@ In order to develop the engine more conveniently, I made the mock version of the
 git clone https://github.com/feliciavan/mqtt.git
 ```
 
-### Build the Docker images
   
-In the `mqtt` directory, modify the content in `.env`, which contains the environment variables about MQTT's topics. The content is:
+In the `mqtt` directory, modify the content in `.env`, which contains the environment variables about MQTT topics. The content is:
 
 ```cmd
 TopicInput=RE/calculateWinterSupplementInput/
 TopicOutput=RE/calculateWinterSupplementOutput/
 ```
 
-where it is different from the ones in the requirements. It is self-specified in order to receive the published messages more efficiently. I can set it to the assignment-specified ones, which are
+where it is self-specified in order to separate with the assignment-specified ones. I can set it to the assignment-specified ones, which are
 
 ```cmd
 TopicInput=BRE/calculateWinterSupplementInput/
 TopicOutput=BRE/calculateWinterSupplementOutput/
 ```
 
-Under this circumstance, I do not need to run the container of the mock WSWA. I can directly use the provided one.
+Under this circumstance, I do not need to run the container of the mock WSWA. I can directly use the existing one.
 
-Build the Docker images
+### Build the Docker images
 
 ```cmd
 docker compose build
@@ -64,28 +79,31 @@ Check the Docker images
 docker image ls
 ```
 
-The output will be:
+The output is:
 
 ```cmd
-REPOSITORY    TAG       IMAGE ID       CREATED          SIZE
-mqtt-engine   latest    8a90b9a1f58e   39 seconds ago   133MB
-mqtt-webapp   latest    3628a8b8c797   39 seconds ago   133MB
+REPOSITORY    TAG       IMAGE ID       CREATED         SIZE
+mqtt-webapp   latest    301bc19e8d42   4 seconds ago   133MB
+mqtt-engine   latest    88d10be74dba   4 seconds ago   133MB
 ```
 
 where `mqtt-webapp` is a mock version of the WSWA. `mqtt-engine` is the engine I developed.
 
 ### Start the containers
 
-Start the container of the engine:
+#### Self-specified
+
+Set the `.env` to self-specified MQTT topics:
 
 ```cmd
-docker compose up engine -d
+TopicInput=RE/calculateWinterSupplementInput/
+TopicOutput=RE/calculateWinterSupplementOutput/
 ```
 
-If I use the self-specified MQTT topics, I can start the container of the webapp:
+Start the containers of the engine and the webapp (WSWA):
 
 ```cmd
-docker compose up webapp -d
+docker compose up -d
 ```
 
 Check the Docker containers
@@ -97,25 +115,69 @@ docker ps
 The output will be
 
 ```cmd
-CONTAINER ID   IMAGE          COMMAND              CREATED       STATUS       PORTS     NAMES
-710914754e64   8b5fd51228c7   "python webApp.py"   2 hours ago   Up 2 hours             webApp
-340d0e0640f2   799997715edf   "python engine.py"   2 hours ago   Up 2 hours             engine
+CONTAINER ID   IMAGE         COMMAND              CREATED         STATUS         PORTS     NAMES
+b084e7d16cfe   mqtt-engine   "python engine.py"   2 seconds ago   Up 2 seconds             engine
+ee762992cd59   mqtt-webapp   "python webApp.py"   2 seconds ago   Up 2 seconds             webapp
 ```
 
-where `webApp` is the mock version of the WSWA and `engine` is the rules engine I developed.
+where `webapp` is the mock version of the WSWA and `engine` is the rules engine I developed.
 
-### Check Docker logs
+##### Check Docker logs
 
-Check the logs of the engine:
+Check the logs of the engine container:
 
 ```cmd
 docker logs engine
 ```
 
-If I run the container of the webapp, I can also check the logs of the webapp container:
+Check the logs of the webapp container:
 
 ```cmd
 docker logs webapp
 ```
 
 The logs are located outside the Docker containers as well. The location is mqtt/log, where `engine.log` is the log of the engine container, and `webapp.log` is the log of the webapp container.
+
+#### Assignment-specified
+
+If the previous containers are running, stop them:
+
+```cmd
+docker stop webapp engine
+```
+
+Set the `.env` to assginment-specified MQTT topics:
+
+```cmd
+TopicInput=BRE/calculateWinterSupplementInput/
+TopicOutput=BRE/calculateWinterSupplementOutput/
+```
+
+At this time, the webapp container is no longer needed, since I am using the existing one, i.e., the online WSWA.
+
+Only start the container of the engine:
+
+```cmd
+docker compose up engine -d
+```
+
+Check the Docker containers
+
+```cmd
+docker ps
+```
+
+The output will be
+
+```cmd
+CONTAINER ID   IMAGE         COMMAND              CREATED         STATUS         PORTS     NAMES
+dbdf113b65d5   mqtt-engine   "python engine.py"   3 seconds ago   Up 2 seconds             engine
+```
+
+##### Check Docker logs
+
+Check the logs of the engine:
+
+```cmd
+docker logs engine
+```

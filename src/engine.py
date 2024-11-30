@@ -21,7 +21,7 @@ def onConnect(client, userdata, flags, rc, properties):
   client.subscribe(TopicInput + "#")
 
 def onMessage(client, userdata, msg):
-  logger.info(msg.topic+" "+str(msg.payload))
+  logger.info("Engine Received: " + msg.topic+" "+str(msg.payload))
 
   # Get the info from web app
   inputData = json.loads(msg.payload.decode())
@@ -49,7 +49,6 @@ def onMessage(client, userdata, msg):
     outputData["supplementAmount"] = inputData.get("numberOfChildren") * 20.0 + outputData["baseAmount"]
 
   outputTopic = f"{TopicOutput}{topicID}"
-  logger.info(f"Engine Calculated {outputTopic}: {outputData}")
 
   # Publish to MQTT broker
   client.publish(outputTopic, json.dumps(outputData))
