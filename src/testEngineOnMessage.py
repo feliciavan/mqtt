@@ -3,14 +3,15 @@ from unittest.mock import MagicMock, patch
 import json
 from engine import onMessage
 
-class TestEngine(unittest.TestCase):
+class TestOnMessage(unittest.TestCase):
   def setUp(self):
     self.mockClient=MagicMock()
-    self.mockUserdata = MagicMock()
     self.topicInput = "RE/calculateWinterSupplementInput/123"
     self.topicOutput = "RE/calculateWinterSupplementOutput/123"
-    
-  def testOnMessageNotEligible(self):
+    self.mockUserdata = None
+  
+  # Case 1: Not Eligible 
+  def testNotEligible(self):
     inputData={
       "id": "test1",
       "numberOfChildren": 0,
@@ -35,7 +36,8 @@ class TestEngine(unittest.TestCase):
       
       mockPublish.assert_called_once_with(self.topicOutput, json.dumps(expectedOutput))
       
-  def testOnMessageSingle(self):
+  # Case 2: Single
+  def testSingle(self):
       inputData={
         "id": "test2",
         "numberOfChildren": 0,
@@ -60,7 +62,8 @@ class TestEngine(unittest.TestCase):
         
         mockPublish.assert_called_once_with(self.topicOutput, json.dumps(expectedOutput))
 
-  def testOnMessageCoupleNoChildren(self):
+  # Case 3: Couple with no children
+  def testCoupleNoChildren(self):
     inputData={
       "id": "test3",
       "numberOfChildren": 0,
@@ -85,7 +88,8 @@ class TestEngine(unittest.TestCase):
       
       mockPublish.assert_called_once_with(self.topicOutput, json.dumps(expectedOutput))
       
-  def testOnMessageCoupleHasChildren(self):
+  # Case 4: Couple with children
+  def testCoupleHasChildren(self):
     inputData={
       "id": "test4",
       "numberOfChildren": 2,

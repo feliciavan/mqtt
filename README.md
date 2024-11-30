@@ -12,6 +12,8 @@
         - [Check Docker logs](#check-docker-logs)
       - [Assignment-specified](#assignment-specified)
         - [Check Docker logs](#check-docker-logs-1)
+  - [Unit Test](#unit-test)
+    - [Unit Test for `onConnect`](#unit-test-for-onconnect)
 
 
 ## Software Language
@@ -87,7 +89,58 @@ mqtt-webapp   latest    301bc19e8d42   4 seconds ago   133MB
 mqtt-engine   latest    88d10be74dba   4 seconds ago   133MB
 ```
 
-where `mqtt-webapp` is a mock version of the WSWA. `mqtt-engine` is the engine I developed.
+where `mqtt-engine` is the engine I developed. `mqtt-webapp` is a mock version of the WSWA. This mock WSWA will publish 4 messages for 4 different cases, which are:
+
+- Case 1: Not eligible
+  - Topic: `RE/calculateWinterSupplementInput/topic-id-not-eligible`
+  - Message:
+    ```json
+    {
+      "id": "id-not-eligible",
+      "numberOfChildren": 0,
+      "familyComposition": "single",
+      "familyUnitInPayForDecember": false
+    }
+    ```
+
+- Case 2: Single
+  - Topic: `RE/calculateWinterSupplementInput/topic-id-single`
+  - Message:
+    ```json
+    {
+      "id": "id-single",
+      "numberOfChildren": 0,
+      "familyComposition": "single",
+      "familyUnitInPayForDecember": true
+    }
+    ```
+
+- Case 3: Couple, no children
+  - Topic: `RE/calculateWinterSupplementInput/topic-id-couple-no-child`
+  - Message:
+    ```json
+    {
+      "id": "id-couple-no-child",
+      "numberOfChildren": 0,
+      "familyComposition": "couple",
+      "familyUnitInPayForDecember": true
+    }
+    ```
+  
+- Case 4: Couple with children
+  - Topic: `RE/calculateWinterSupplementInput/topic-id-couple-with-children`
+  - Message:
+    ```json
+    {
+      "id": "id-couple-with-children",
+      "numberOfChildren": 2,
+      "familyComposition": "couple",
+      "familyUnitInPayForDecember": true
+    }
+
+    ```
+
+Here, I set the topic ID to be the specific case name for evident clarity in the logs. I can also set the topic ID to be the randome UUID.
 
 ### Start the containers
 
@@ -181,3 +234,12 @@ Check the logs of the engine:
 ```cmd
 docker logs engine
 ```
+
+## Unit Test
+
+The engine code is located in file `engine.py`. This code contains 2 callback functions. So, I made 2 unit tests for these 2 functions, which are `onConnect` and `onMessage`. 
+
+### Unit Test for `onConnect`
+
+The test file is `testEngineOnConnect.py`. Run
+
