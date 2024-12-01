@@ -2,12 +2,19 @@ import unittest
 from unittest.mock import MagicMock, patch
 import json
 from engine import onMessage
+import os
+from dotenv import load_dotenv
+
+# Get the environment variables, which can be self-specified or assignment-specified
+load_dotenv()
+TopicInput = os.getenv("TopicInput")
+TopicOutput = os.getenv("TopicOutput")
 
 class TestOnMessage(unittest.TestCase):
   def setUp(self):
     self.mockClient=MagicMock()
-    self.topicInput = "RE/calculateWinterSupplementInput/123"
-    self.topicOutput = "RE/calculateWinterSupplementOutput/123"
+    self.topicInput = TopicInput + "unittest"
+    self.topicOutput = TopicOutput + "unittest"
     self.mockUserdata = None
   
   # Case 1: Not Eligible 
@@ -140,5 +147,37 @@ class TestOnMessage(unittest.TestCase):
       
       mockPublish.assert_called_once_with(self.topicOutput, json.dumps(expectedOutput))
 
+  # Case 6: Invalid topic
+  def testInvalidTopic(self):
+    msg = MagicMock()
+    msg.topic = "abc" 
+    msg.payload = b'{}'
+    onMessage(self.mockClient, self.mockUserdata, msg)
+
+  # Case 7: Invalid topic ID
+  def testInvalidTopicID(self):
+    msg = MagicMock()
+    msg.topic = "abc/edf/" 
+    msg.payload = b'{}'
+    onMessage(self.mockClient, self.mockUserdata, msg)
+
+  # Case 8: Invalid JSON payload
+  def testInvalidJSONPayload(self):
+    msg = MagicMock()
+    msg.topic = self.topicInput 
+    msg.payload = "abc"
+    onMessage(self.mockClient, self.mockUserdata, msg)
+  
+  # Case 9: Missing fields in input data
+  def testFieldsOfInputdata(self):
+    inputData={
+      "id": "id-single-with-children",
+      "numberOfChildren": 3,
+    }
+    msg = MagicMock()
+    msg.topic = self.topicInput 
+    msg.payload = json.dumps(inputData).encode()
+    onMessage(self.mockClient, self.mockUserdata, msg)
+      
 if __name__=="__main__":
   unittest.main()

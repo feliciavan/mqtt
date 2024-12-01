@@ -22,12 +22,28 @@ def onConnect(client, userdata, flags, rc, properties):
 
 def onMessage(client, userdata, msg):
   logger.info("Engine Received: " + msg.topic+" "+str(msg.payload))
-
-  # Get the info from web app
-  inputData = json.loads(msg.payload.decode())
   
-  # Get the topic ID
-  topicID = msg.topic.split('/')[-1]
+  # Get the topic ID. If there is no topicID, log error, return
+  topicParts = msg.topic.split('/')
+  topicID = topicParts[-1]
+  if not (len(topicParts) == 3 and len(topicID) != 0):
+    logger.error("Invalid topic: " + msg.topic)
+    return
+  
+  # Get the info from web app
+  try:
+    inputData = json.loads(msg.payload.decode())
+  except Exception as e:
+    logger.error(f"Error when decoding payload: {e}")
+    return
+
+  # Validate fields
+  requiredFields = ["id", "familyUnitInPayForDecember", "numberOfChildren", "familyComposition", "familyUnitInPayForDecember"]
+  missingFields = [field for field in requiredFields if field not in inputData]
+  
+  if missingFields:
+    logger.error(f"Missing required fields in input data: {missingFields}")
+    return
 
   # Prepare output data
   outputData = {}

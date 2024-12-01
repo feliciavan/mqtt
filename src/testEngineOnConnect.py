@@ -1,11 +1,17 @@
 import unittest
 from unittest.mock import MagicMock
 from engine import onConnect
+import os
+from dotenv import load_dotenv
+
+# Get the environment variables, which can be self-specified or assignment-specified
+load_dotenv()
+TopicInput = os.getenv("TopicInput")
 
 class TestOnConnect(unittest.TestCase):
   def setUp(self):
     self.mockClient = MagicMock()
-    self.topicInput = "RE/calculateWinterSupplementInput/#"
+    self.topicInput = TopicInput + "#"
     self.mockUserdata = None
     self.flags = None
     self.properties = None
