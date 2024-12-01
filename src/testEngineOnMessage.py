@@ -13,7 +13,7 @@ class TestOnMessage(unittest.TestCase):
   # Case 1: Not Eligible 
   def testNotEligible(self):
     inputData={
-      "id": "test1",
+      "id": "id-not-eligible",
       "numberOfChildren": 0,
       "familyComposition": "single",
       "familyUnitInPayForDecember": False
@@ -24,7 +24,7 @@ class TestOnMessage(unittest.TestCase):
     msg.payload = json.dumps(inputData).encode()
 
     expectedOutput = {
-      "id": "test1",
+      "id": "id-not-eligible",
       "isEligible": False,
       "childrenAmount": 0.0,
       "baseAmount": 0.0,
@@ -36,10 +36,10 @@ class TestOnMessage(unittest.TestCase):
       
       mockPublish.assert_called_once_with(self.topicOutput, json.dumps(expectedOutput))
       
-  # Case 2: Single
+  # Case 2: Single with no children
   def testSingle(self):
       inputData={
-        "id": "test2",
+        "id": "id-single-no-children",
         "numberOfChildren": 0,
         "familyComposition": "single",
         "familyUnitInPayForDecember": True
@@ -50,7 +50,7 @@ class TestOnMessage(unittest.TestCase):
       msg.payload = json.dumps(inputData).encode()
       
       expectedOutput = {
-        "id": "test2",
+        "id": "id-single-no-children",
         "isEligible": True,
         "childrenAmount": 0.0,
         "baseAmount": 60.0,
@@ -65,7 +65,7 @@ class TestOnMessage(unittest.TestCase):
   # Case 3: Couple with no children
   def testCoupleNoChildren(self):
     inputData={
-      "id": "test3",
+      "id": "id-copule-no-children",
       "numberOfChildren": 0,
       "familyComposition": "couple",
       "familyUnitInPayForDecember": True
@@ -76,7 +76,7 @@ class TestOnMessage(unittest.TestCase):
     msg.payload = json.dumps(inputData).encode()
     
     expectedOutput = {
-      "id": "test3",
+      "id": "id-copule-no-children",
       "isEligible": True,
       "childrenAmount": 0.0,
       "baseAmount": 120.0,
@@ -89,9 +89,9 @@ class TestOnMessage(unittest.TestCase):
       mockPublish.assert_called_once_with(self.topicOutput, json.dumps(expectedOutput))
       
   # Case 4: Couple with children
-  def testCoupleHasChildren(self):
+  def testCoupleWithChildren(self):
     inputData={
-      "id": "test4",
+      "id": "id-couple-with-children",
       "numberOfChildren": 2,
       "familyComposition": "couple",
       "familyUnitInPayForDecember": True
@@ -102,11 +102,37 @@ class TestOnMessage(unittest.TestCase):
     msg.payload = json.dumps(inputData).encode()
     
     expectedOutput = {
-      "id": "test4",
+      "id": "id-couple-with-children",
       "isEligible": True,
       "childrenAmount": 2.0,
       "baseAmount": 120.0,
       "supplementAmount": 160.0
+    }
+    
+    with patch.object(self.mockClient, 'publish') as mockPublish:
+      onMessage(self.mockClient, self.mockUserdata, msg)
+      
+      mockPublish.assert_called_once_with(self.topicOutput, json.dumps(expectedOutput))
+  
+  # Case 5: Single with children
+  def testSingleWithChildren(self):
+    inputData={
+      "id": "id-single-with-children",
+      "numberOfChildren": 3,
+      "familyComposition": "single",
+      "familyUnitInPayForDecember": True
+    }
+    
+    msg = MagicMock()
+    msg.topic = self.topicInput
+    msg.payload = json.dumps(inputData).encode()
+    
+    expectedOutput = {
+      "id": "id-single-with-children",
+      "isEligible": True,
+      "childrenAmount": 3.0,
+      "baseAmount": 120.0,
+      "supplementAmount": 180.0
     }
     
     with patch.object(self.mockClient, 'publish') as mockPublish:

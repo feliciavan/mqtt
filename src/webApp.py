@@ -37,33 +37,33 @@ def publish_message(client):
   time.sleep(5)
   logger.info("Broker: done waiting") 
   
-  # Case 2: Single
-  payloadSingle = {
-    "id": "id-single",
+  # Case 2: Single with no children
+  payloadSingleNoChildren = {
+    "id": "id-single-no-children",
     "numberOfChildren": 0,  
     "familyComposition": "single",  
     "familyUnitInPayForDecember": True 
   }
 
-  topicSingle = TopicInput + "topic-id-single" 
-  client.publish(topicSingle, json.dumps(payloadSingle))
-  logger.info(f"Broker: Published to {topicSingle}:{json.dumps(payloadSingle)}")
+  topicSingleNoChildren = TopicInput + "topic-id-single-no-children" 
+  client.publish(topicSingleNoChildren, json.dumps(payloadSingleNoChildren))
+  logger.info(f"Broker: Published to {topicSingleNoChildren}:{json.dumps(payloadSingleNoChildren)}")
   
   logger.info("Broker waits for 5s")
   time.sleep(5)
   logger.info("Broker: done waiting")
   
-  # Case 3: Couple no child
-  payloadCoupleNoChild = {
-    "id": "id-copule-no-child",
+  # Case 3: Couple no children
+  payloadCoupleNoChildren = {
+    "id": "id-copule-no-children",
     "numberOfChildren": 0,  
     "familyComposition": "couple",  
     "familyUnitInPayForDecember": True 
   }
 
-  topicCoupleNoChild = TopicInput + "topic-id-couple-no-child" 
-  client.publish(topicCoupleNoChild, json.dumps(payloadCoupleNoChild))
-  logger.info(f"Broker: Published to {topicCoupleNoChild}:{json.dumps(payloadCoupleNoChild)}")
+  topicCoupleNoChild = TopicInput + "topic-id-couple-no-children" 
+  client.publish(topicCoupleNoChild, json.dumps(payloadCoupleNoChildren))
+  logger.info(f"Broker: Published to {topicCoupleNoChild}:{json.dumps(payloadCoupleNoChildren)}")
 
   # Wait for engine to receive
   logger.info("Broker waits for 5s")
@@ -81,6 +81,23 @@ def publish_message(client):
   topicCoupleWithChildren = TopicInput + "topic-id-couple-with-children" 
   client.publish(topicCoupleWithChildren, json.dumps(payloadCoupleWithChildren))
   logger.info(f"Broker: Published to {topicCoupleWithChildren}:{json.dumps(payloadCoupleWithChildren)}")
+  
+  # Wait for engine to receive
+  logger.info("Broker waits for 5s")
+  time.sleep(5)
+  logger.info("Broker: done waiting")
+  
+  # Case 5: Single with children
+  payloadSingleWithChildren = {
+    "id": "id-single-with-children",
+    "numberOfChildren": 3,  
+    "familyComposition": "single",  
+    "familyUnitInPayForDecember": True 
+  }
+
+  topicSingleWithChildren = TopicInput + "topic-id-single-with-children" 
+  client.publish(topicSingleWithChildren, json.dumps(payloadSingleWithChildren))
+  logger.info(f"Broker: Published to {topicSingleWithChildren}:{json.dumps(payloadSingleWithChildren)}")
   
 def on_connect(client, userdata, flags, rc, properties):
   logger.info(f"Broker: connected with result code {rc}")
