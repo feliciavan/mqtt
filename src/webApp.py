@@ -115,7 +115,7 @@ def publish_message(client):
   logger.info("Broker: done waiting")
   
   # Case 7: Invalid payload
-  payloadInvalid = 123 
+  payloadInvalid = "123" 
 
   topicInvalidPayload = TopicInput + "topic-invalid-payload" 
   client.publish(topicInvalidPayload, json.dumps(payloadInvalid))
