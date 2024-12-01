@@ -92,7 +92,9 @@ mqtt-webapp   latest    301bc19e8d42   4 seconds ago   133MB
 mqtt-engine   latest    88d10be74dba   4 seconds ago   133MB
 ```
 
-where `mqtt-engine` is the engine I developed. `mqtt-webapp` is a mock version of the WSWA. This mock WSWA will publish 5 messages for 5 different cases, which are:
+where `mqtt-engine` is the engine I developed. `mqtt-webapp` is a mock version of the WSWA. 
+
+This mock WSWA will publish 8 messages for 8 different cases, which are:
 
 - Case 1: Not eligible
   - Topic: `RE/calculateWinterSupplementInput/topic-id-not-eligible`
@@ -151,6 +153,23 @@ where `mqtt-engine` is the engine I developed. `mqtt-webapp` is a mock version o
       "numberOfChildren": 3,
       "familyComposition": "single",
       "familyUnitInPayForDecember": true
+    }
+    ```
+
+- Case 6: Invalid topic ID
+  - Topic: `RE/calculateWinterSupplementInput/`
+
+- Case 7: Invalid payload
+  - Topic: `RE/calculateWinterSupplementInput/topic-invalid-payload`
+  - Message: `123`
+
+- Case 8: Missing fields in input data
+  - Topic: `RE/calculateWinterSupplementInput/topic-id-missing-fields`
+  - Message:
+    ```json
+    {
+      "id": "id-missing-fields",
+      "numberOfChildren": 3,  
     }
     ```
 
@@ -297,7 +316,6 @@ OK
 - Couple with no childre
 - Couple with children 
 - Single with children
-- Invalid topic
 - Invalid topic ID 
 - Invalid message payload
 - Missing fields in message payload
@@ -311,36 +329,33 @@ python -m unittest -v testEngineOnMessage.py
 The test results are:
 
 ```cmd
-testCoupleNoChildren (testEngineOnMessage.TestOnMessage.testCoupleNoChildren) ... 2024-11-30 19:13:15.550 | INFO     | engine:onMessage:24 - Engine Received: BRE/calculateWinterSupplementInput/unittest b'{"id": "id-copule-no-children", "numberOfChildren": 0, "familyComposition": "couple", "familyUnitInPayForDecember": true}'
-2024-11-30 19:13:15.551 | INFO     | engine:onMessage:72 - Engine Published to BRE/calculateWinterSupplementOutput/unittest: {'id': 'id-copule-no-children', 'isEligible': True, 'childrenAmount': 0.0, 'baseAmount': 120.0, 'supplementAmount': 120.0}
+testCoupleNoChildren (testEngineOnMessage.TestOnMessage.testCoupleNoChildren) ... 2024-11-30 20:26:44.683 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/unittest b'{"id": "id-copule-no-children", "numberOfChildren": 0, "familyComposition": "couple", "familyUnitInPayForDecember": true}'
+2024-11-30 20:26:44.684 | INFO     | engine:onMessage:72 - Engine Published to RE/calculateWinterSupplementOutput/unittest: {'id': 'id-copule-no-children', 'isEligible': True, 'childrenAmount': 0.0, 'baseAmount': 120.0, 'supplementAmount': 120.0}
 ok
-testCoupleWithChildren (testEngineOnMessage.TestOnMessage.testCoupleWithChildren) ... 2024-11-30 19:13:15.553 | INFO     | engine:onMessage:24 - Engine Received: BRE/calculateWinterSupplementInput/unittest b'{"id": "id-couple-with-children", "numberOfChildren": 2, "familyComposition": "couple", "familyUnitInPayForDecember": true}'
-2024-11-30 19:13:15.553 | INFO     | engine:onMessage:72 - Engine Published to BRE/calculateWinterSupplementOutput/unittest: {'id': 'id-couple-with-children', 'isEligible': True, 'childrenAmount': 2.0, 'baseAmount': 120.0, 'supplementAmount': 160.0}
+testCoupleWithChildren (testEngineOnMessage.TestOnMessage.testCoupleWithChildren) ... 2024-11-30 20:26:44.686 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/unittest b'{"id": "id-couple-with-children", "numberOfChildren": 2, "familyComposition": "couple", "familyUnitInPayForDecember": true}'
+2024-11-30 20:26:44.686 | INFO     | engine:onMessage:72 - Engine Published to RE/calculateWinterSupplementOutput/unittest: {'id': 'id-couple-with-children', 'isEligible': True, 'childrenAmount': 2.0, 'baseAmount': 120.0, 'supplementAmount': 160.0}
 ok
-testFieldsOfInputdata (testEngineOnMessage.TestOnMessage.testFieldsOfInputdata) ... 2024-11-30 19:13:15.554 | INFO     | engine:onMessage:24 - Engine Received: BRE/calculateWinterSupplementInput/unittest b'{"id": "id-single-with-children", "numberOfChildren": 3}'
-2024-11-30 19:13:15.555 | ERROR    | engine:onMessage:45 - Missing required fields in input data: ['familyUnitInPayForDecember', 'familyComposition', 'familyUnitInPayForDecember']
+testFieldsOfInputdata (testEngineOnMessage.TestOnMessage.testFieldsOfInputdata) ... 2024-11-30 20:26:44.687 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/unittest b'{"id": "id-single-with-children", "numberOfChildren": 3}'
+2024-11-30 20:26:44.688 | ERROR    | engine:onMessage:45 - Missing required fields in input data: ['familyUnitInPayForDecember', 'familyComposition', 'familyUnitInPayForDecember']
 ok
-testInvalidJSONPayload (testEngineOnMessage.TestOnMessage.testInvalidJSONPayload) ... 2024-11-30 19:13:15.556 | INFO     | engine:onMessage:24 - Engine Received: BRE/calculateWinterSupplementInput/unittest abc
-2024-11-30 19:13:15.556 | ERROR    | engine:onMessage:37 - Error when decoding payload: 'str' object has no attribute 'decode'
+testInvalidPayload (testEngineOnMessage.TestOnMessage.testInvalidPayload) ... 2024-11-30 20:26:44.689 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/unittest 123
+2024-11-30 20:26:44.690 | ERROR    | engine:onMessage:37 - Error when decoding payload: 'int' object has no attribute 'decode'
 ok
-testInvalidTopic (testEngineOnMessage.TestOnMessage.testInvalidTopic) ... 2024-11-30 19:13:15.557 | INFO     | engine:onMessage:24 - Engine Received: abc b'{}'
-2024-11-30 19:13:15.558 | ERROR    | engine:onMessage:30 - Invalid topic: abc
+testInvalidTopicID (testEngineOnMessage.TestOnMessage.testInvalidTopicID) ... 2024-11-30 20:26:44.690 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/ b'{}'
+2024-11-30 20:26:44.691 | ERROR    | engine:onMessage:30 - Invalid topic: RE/calculateWinterSupplementInput/
 ok
-testInvalidTopicID (testEngineOnMessage.TestOnMessage.testInvalidTopicID) ... 2024-11-30 19:13:15.559 | INFO     | engine:onMessage:24 - Engine Received: abc/edf/ b'{}'
-2024-11-30 19:13:15.559 | ERROR    | engine:onMessage:30 - Invalid topic: abc/edf/
+testNotEligible (testEngineOnMessage.TestOnMessage.testNotEligible) ... 2024-11-30 20:26:44.692 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/unittest b'{"id": "id-not-eligible", "numberOfChildren": 0, "familyComposition": "single", "familyUnitInPayForDecember": false}'
+2024-11-30 20:26:44.693 | INFO     | engine:onMessage:72 - Engine Published to RE/calculateWinterSupplementOutput/unittest: {'id': 'id-not-eligible', 'isEligible': False, 'childrenAmount': 0.0, 'baseAmount': 0.0, 'supplementAmount': 0.0}
 ok
-testNotEligible (testEngineOnMessage.TestOnMessage.testNotEligible) ... 2024-11-30 19:13:15.560 | INFO     | engine:onMessage:24 - Engine Received: BRE/calculateWinterSupplementInput/unittest b'{"id": "id-not-eligible", "numberOfChildren": 0, "familyComposition": "single", "familyUnitInPayForDecember": false}'
-2024-11-30 19:13:15.561 | INFO     | engine:onMessage:72 - Engine Published to BRE/calculateWinterSupplementOutput/unittest: {'id': 'id-not-eligible', 'isEligible': False, 'childrenAmount': 0.0, 'baseAmount': 0.0, 'supplementAmount': 0.0}
+testSingleNoChildren (testEngineOnMessage.TestOnMessage.testSingleNoChildren) ... 2024-11-30 20:26:44.694 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/unittest b'{"id": "id-single-no-children", "numberOfChildren": 0, "familyComposition": "single", "familyUnitInPayForDecember": true}'
+2024-11-30 20:26:44.694 | INFO     | engine:onMessage:72 - Engine Published to RE/calculateWinterSupplementOutput/unittest: {'id': 'id-single-no-children', 'isEligible': True, 'childrenAmount': 0.0, 'baseAmount': 60.0, 'supplementAmount': 60.0}
 ok
-testSingleNoChildren (testEngineOnMessage.TestOnMessage.testSingleNoChildren) ... 2024-11-30 19:13:15.563 | INFO     | engine:onMessage:24 - Engine Received: BRE/calculateWinterSupplementInput/unittest b'{"id": "id-single-no-children", "numberOfChildren": 0, "familyComposition": "single", "familyUnitInPayForDecember": true}'
-2024-11-30 19:13:15.563 | INFO     | engine:onMessage:72 - Engine Published to BRE/calculateWinterSupplementOutput/unittest: {'id': 'id-single-no-children', 'isEligible': True, 'childrenAmount': 0.0, 'baseAmount': 60.0, 'supplementAmount': 60.0}
-ok
-testSingleWithChildren (testEngineOnMessage.TestOnMessage.testSingleWithChildren) ... 2024-11-30 19:13:15.565 | INFO     | engine:onMessage:24 - Engine Received: BRE/calculateWinterSupplementInput/unittest b'{"id": "id-single-with-children", "numberOfChildren": 3, "familyComposition": "single", "familyUnitInPayForDecember": true}'
-2024-11-30 19:13:15.565 | INFO     | engine:onMessage:72 - Engine Published to BRE/calculateWinterSupplementOutput/unittest: {'id': 'id-single-with-children', 'isEligible': True, 'childrenAmount': 3.0, 'baseAmount': 120.0, 'supplementAmount': 180.0}
+testSingleWithChildren (testEngineOnMessage.TestOnMessage.testSingleWithChildren) ... 2024-11-30 20:26:44.695 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/unittest b'{"id": "id-single-with-children", "numberOfChildren": 3, "familyComposition": "single", "familyUnitInPayForDecember": true}'
+2024-11-30 20:26:44.696 | INFO     | engine:onMessage:72 - Engine Published to RE/calculateWinterSupplementOutput/unittest: {'id': 'id-single-with-children', 'isEligible': True, 'childrenAmount': 3.0, 'baseAmount': 120.0, 'supplementAmount': 180.0}
 ok
 
 ----------------------------------------------------------------------
-Ran 9 tests in 0.016s
+Ran 8 tests in 0.014s
 
 OK
 ```

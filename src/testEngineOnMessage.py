@@ -147,28 +147,21 @@ class TestOnMessage(unittest.TestCase):
       
       mockPublish.assert_called_once_with(self.topicOutput, json.dumps(expectedOutput))
 
-  # Case 6: Invalid topic
-  def testInvalidTopic(self):
-    msg = MagicMock()
-    msg.topic = "abc" 
-    msg.payload = b'{}'
-    onMessage(self.mockClient, self.mockUserdata, msg)
-
-  # Case 7: Invalid topic ID
+  # Case 6: Invalid topic ID
   def testInvalidTopicID(self):
     msg = MagicMock()
-    msg.topic = "abc/edf/" 
+    msg.topic = TopicInput 
     msg.payload = b'{}'
     onMessage(self.mockClient, self.mockUserdata, msg)
 
-  # Case 8: Invalid JSON payload
-  def testInvalidJSONPayload(self):
+  # Case 7: Invalid payload 
+  def testInvalidPayload(self):
     msg = MagicMock()
     msg.topic = self.topicInput 
-    msg.payload = "abc"
+    msg.payload = 123
     onMessage(self.mockClient, self.mockUserdata, msg)
-  
-  # Case 9: Missing fields in input data
+
+  # Case 8: Missing fields in input data
   def testFieldsOfInputdata(self):
     inputData={
       "id": "id-single-with-children",

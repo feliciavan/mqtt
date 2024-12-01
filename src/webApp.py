@@ -97,8 +97,45 @@ def publish_message(client):
 
   topicSingleWithChildren = TopicInput + "topic-id-single-with-children" 
   client.publish(topicSingleWithChildren, json.dumps(payloadSingleWithChildren))
-  logger.info(f"Broker: Published to {topicSingleWithChildren}:{json.dumps(payloadSingleWithChildren)}")
+  logger.info(f"Broker: Published to {topicSingleWithChildren}:{json.dumps(payloadSingleWithChildren)}")  
+
+  # Wait for engine to receive
+  logger.info("Broker waits for 5s")
+  time.sleep(5)
+  logger.info("Broker: done waiting")
   
+  # Case 6: Invalid topic ID
+  topicInvalidTopicID = TopicInput 
+  client.publish(topicInvalidTopicID, None)
+  logger.info(f"Broker: Published to {topicInvalidTopicID}:None")
+  
+  # Wait for engine to receive
+  logger.info("Broker waits for 5s")
+  time.sleep(5)
+  logger.info("Broker: done waiting")
+  
+  # Case 7: Invalid payload
+  payloadInvalid = 123 
+
+  topicInvalidPayload = TopicInput + "topic-invalid-payload" 
+  client.publish(topicInvalidPayload, json.dumps(payloadInvalid))
+  logger.info(f"Broker: Published to {topicInvalidPayload}:{json.dumps(payloadInvalid)}")  
+
+  # Wait for engine to receive
+  logger.info("Broker waits for 5s")
+  time.sleep(5)
+  logger.info("Broker: done waiting")
+  
+  # Case 8: Missing fields in input data 
+  payloadMissingFieldsInInputdata = {
+    "id": "id-missing-fields",
+    "numberOfChildren": 3,  
+  }
+
+  topicMissingFieldsOfInputdata = TopicInput + "topic-id-missing-fields" 
+  client.publish(topicMissingFieldsOfInputdata, json.dumps(payloadMissingFieldsInInputdata))
+  logger.info(f"Broker: Published to {topicMissingFieldsOfInputdata}:{json.dumps(payloadMissingFieldsInInputdata)}")  
+
 def on_connect(client, userdata, flags, rc, properties):
   logger.info(f"Broker: connected with result code {rc}")
   client.subscribe(TopicOutput + "#")
