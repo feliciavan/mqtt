@@ -185,7 +185,7 @@ This mock WSWA will publish 9 messages for 9 different cases, which are:
     }
     ```
 
-Here, I set the topic ID to be the specific case name for evident clarity in the logs. I can also set the topic ID to be the randome UUID.
+Here, I set the topic ID to be the specific case name for evident clarity in the logs. I can also set the topic ID to be the random UUID.
 
 ### Start the containers
 
@@ -282,7 +282,7 @@ docker logs engine
 
 ## Unit Test
 
-The code of the engine is in file `engine.py`. It contains 2 callback functions, which are `onConnect` and `onMessage`. The are related to `on_connect` and `on_message` of the MQTT client, respectively. I made 2 unit tests for these 2 functions.
+The code of the engine is in file `engine.py`. It contains 2 callback functions, which are `onConnect` and `onMessage`. They are related to `on_connect` and `on_message` of the MQTT client, respectively. I made 2 unit tests for these 2 functions.
 
 Go inside the Docker container `engine`, to run the unit tests.
 
@@ -325,7 +325,7 @@ OK
 
 - Not eligible
 - Single with no children
-- Couple with no childre
+- Couple with no children
 - Couple with children 
 - Single with children
 - Invalid topic ID 
