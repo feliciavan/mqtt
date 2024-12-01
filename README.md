@@ -90,7 +90,7 @@ mqtt-webapp   latest    301bc19e8d42   4 seconds ago   133MB
 mqtt-engine   latest    88d10be74dba   4 seconds ago   133MB
 ```
 
-where `mqtt-engine` is the engine I developed. `mqtt-webapp` is a mock version of the WSWA. This mock WSWA will publish 4 messages for 4 different cases, which are:
+where `mqtt-engine` is the engine I developed. `mqtt-webapp` is a mock version of the WSWA. This mock WSWA will publish 5 messages for 5 different cases, which are:
 
 - Case 1: Not eligible
   - Topic: `RE/calculateWinterSupplementInput/topic-id-not-eligible`
@@ -104,24 +104,24 @@ where `mqtt-engine` is the engine I developed. `mqtt-webapp` is a mock version o
     }
     ```
 
-- Case 2: Single
-  - Topic: `RE/calculateWinterSupplementInput/topic-id-single`
+- Case 2: Single with no children
+  - Topic: `RE/calculateWinterSupplementInput/topic-id-single-no-children`
   - Message:
     ```json
     {
-      "id": "id-single",
+      "id": "id-single-no-children",
       "numberOfChildren": 0,
       "familyComposition": "single",
       "familyUnitInPayForDecember": true
     }
     ```
 
-- Case 3: Couple, no children
-  - Topic: `RE/calculateWinterSupplementInput/topic-id-couple-no-child`
+- Case 3: Couple with no children
+  - Topic: `RE/calculateWinterSupplementInput/topic-id-couple-no-children`
   - Message:
     ```json
     {
-      "id": "id-couple-no-child",
+      "id": "id-couple-no-children",
       "numberOfChildren": 0,
       "familyComposition": "couple",
       "familyUnitInPayForDecember": true
@@ -138,7 +138,18 @@ where `mqtt-engine` is the engine I developed. `mqtt-webapp` is a mock version o
       "familyComposition": "couple",
       "familyUnitInPayForDecember": true
     }
-
+    ```
+  
+- Case 5: Single with children
+  - Topic: `RE/calculateWinterSupplementInput/topic-id-single-with-children`
+  - Message:
+    ```json
+    {
+      "id": "id-single-with-children",
+      "numberOfChildren": 3,
+      "familyComposition": "single",
+      "familyUnitInPayForDecember": true
+    }
     ```
 
 Here, I set the topic ID to be the specific case name for evident clarity in the logs. I can also set the topic ID to be the randome UUID.
@@ -280,7 +291,7 @@ To test `onMessage` function in `engine.py`, run
 python -m unittest -v testEngineOnMessage.py
 ```
 
-I prepare 4 test cases, which are not eligible, single, couple with no childre, couple with children.
+I prepare 5 test cases, which are not eligible, single with no children, couple with no childre, couple with children and single with children.
 
 The test results are:
 

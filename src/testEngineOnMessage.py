@@ -37,7 +37,7 @@ class TestOnMessage(unittest.TestCase):
       mockPublish.assert_called_once_with(self.topicOutput, json.dumps(expectedOutput))
       
   # Case 2: Single with no children
-  def testSingle(self):
+  def testSingleNoChildren(self):
       inputData={
         "id": "id-single-no-children",
         "numberOfChildren": 0,
