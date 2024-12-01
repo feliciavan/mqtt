@@ -158,13 +158,13 @@ class TestOnMessage(unittest.TestCase):
   def testInvalidPayload(self):
     msg = MagicMock()
     msg.topic = self.topicInput 
-    msg.payload = 123
+    msg.payload = "123"
     onMessage(self.mockClient, self.mockUserdata, msg)
 
   # Case 8: Missing fields in input data
-  def testFieldsOfInputdata(self):
+  def testFieldsInInputdata(self):
     inputData={
-      "id": "id-single-with-children",
+      "id": "id-missing-fields",
       "numberOfChildren": 3,
     }
     msg = MagicMock()
