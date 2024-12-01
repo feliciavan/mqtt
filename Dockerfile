@@ -8,3 +8,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/engine.py .
 COPY src/webApp.py .
+COPY src/testEngineOnConnect.py .
+COPY src/testEngineOnMessage.py .

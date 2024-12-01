@@ -14,6 +14,7 @@
         - [Check Docker logs](#check-docker-logs-1)
   - [Unit Test](#unit-test)
     - [Unit Test for `onConnect`](#unit-test-for-onconnect)
+    - [Unit Test for `onMessage`](#unit-test-for-onmessage)
 
 
 ## Software Language
@@ -237,9 +238,68 @@ docker logs engine
 
 ## Unit Test
 
-The engine code is located in file `engine.py`. This code contains 2 callback functions. So, I made 2 unit tests for these 2 functions, which are `onConnect` and `onMessage`. 
+The code of the engine is in file `engine.py`. It contains 2 callback functions, which are `onConnect` and `onMessage`. The are related to `on_connect` and `on_message` of the MQTT client, respectively. I made 2 unit tests for these 2 functions.
+
+Go inside the Docker container `engine`, to run the unit tests.
+
+```cmd
+docker exec -it engine bash
+```
+
+In the `/app` directory, `testEngineOnMessage.py` is the unit test for `onMessage`, and `testEngineOnConnect.py` is the unit test for `onConnect`.
 
 ### Unit Test for `onConnect`
 
-The test file is `testEngineOnConnect.py`. Run
+To test `onConnect` function in `engine.py`, run
 
+```cmd
+python -m unittest -v testEngineOnConnect.py
+```
+
+I prepare 2 test cases. One is that reason code is 0, denoting success. The other is reason code is 1, denoting refuse.
+
+The test results are:
+
+```cmd
+testSubscribeRefuse (testEngineOnConnect.TestOnConnect.testSubscribeRefuse) ... 2024-11-30 15:58:04.064 | INFO     | engine:onConnect:20 - Engine: Connected with result code 1
+ok
+testSubscribeSuccess (testEngineOnConnect.TestOnConnect.testSubscribeSuccess) ... 2024-11-30 15:58:04.066 | INFO     | engine:onConnect:20 - Engine: Connected with result code 0
+ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.005s
+
+OK
+```
+
+### Unit Test for `onMessage`
+
+To test `onMessage` function in `engine.py`, run
+
+```cmd
+python -m unittest -v testEngineOnMessage.py
+```
+
+I prepare 4 test cases, which are not eligible, single, couple with no childre, couple with children.
+
+The test results are:
+
+```cmd
+testCoupleHasChildren (testEngineOnMessage.TestOnMessage.testCoupleHasChildren) ... 2024-11-30 16:01:46.392 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/123 b'{"id": "test4", "numberOfChildren": 2, "familyComposition": "couple", "familyUnitInPayForDecember": true}'
+2024-11-30 16:01:46.393 | INFO     | engine:onMessage:55 - Engine Published to RE/calculateWinterSupplementOutput/123: {'id': 'test4', 'isEligible': True, 'childrenAmount': 2.0, 'baseAmount': 120.0, 'supplementAmount': 160.0}
+ok
+testCoupleNoChildren (testEngineOnMessage.TestOnMessage.testCoupleNoChildren) ... 2024-11-30 16:01:46.396 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/123 b'{"id": "test3", "numberOfChildren": 0, "familyComposition": "couple", "familyUnitInPayForDecember": true}'
+2024-11-30 16:01:46.397 | INFO     | engine:onMessage:55 - Engine Published to RE/calculateWinterSupplementOutput/123: {'id': 'test3', 'isEligible': True, 'childrenAmount': 0.0, 'baseAmount': 120.0, 'supplementAmount': 120.0}
+ok
+testNotEligible (testEngineOnMessage.TestOnMessage.testNotEligible) ... 2024-11-30 16:01:46.399 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/123 b'{"id": "test1", "numberOfChildren": 0, "familyComposition": "single", "familyUnitInPayForDecember": false}'
+2024-11-30 16:01:46.400 | INFO     | engine:onMessage:55 - Engine Published to RE/calculateWinterSupplementOutput/123: {'id': 'test1', 'isEligible': False, 'childrenAmount': 0.0, 'baseAmount': 0.0, 'supplementAmount': 0.0}
+ok
+testSingle (testEngineOnMessage.TestOnMessage.testSingle) ... 2024-11-30 16:01:46.402 | INFO     | engine:onMessage:24 - Engine Received: RE/calculateWinterSupplementInput/123 b'{"id": "test2", "numberOfChildren": 0, "familyComposition": "single", "familyUnitInPayForDecember": true}'
+2024-11-30 16:01:46.403 | INFO     | engine:onMessage:55 - Engine Published to RE/calculateWinterSupplementOutput/123: {'id': 'test2', 'isEligible': True, 'childrenAmount': 0.0, 'baseAmount': 60.0, 'supplementAmount': 60.0}
+ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.013s
+
+OK
+```
