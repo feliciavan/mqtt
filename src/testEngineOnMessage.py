@@ -72,7 +72,7 @@ class TestOnMessage(unittest.TestCase):
   # Case 3: Couple with no children
   def testCoupleNoChildren(self):
     inputData={
-      "id": "id-copule-no-children",
+      "id": "id-couple-no-children",
       "numberOfChildren": 0,
       "familyComposition": "couple",
       "familyUnitInPayForDecember": True
@@ -83,7 +83,7 @@ class TestOnMessage(unittest.TestCase):
     msg.payload = json.dumps(inputData).encode()
     
     expectedOutput = {
-      "id": "id-copule-no-children",
+      "id": "id-couple-no-children",
       "isEligible": True,
       "childrenAmount": 0.0,
       "baseAmount": 120.0,
