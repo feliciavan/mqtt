@@ -136,6 +136,23 @@ def publish_message(client):
   client.publish(topicMissingFieldsOfInputdata, json.dumps(payloadMissingFieldsInInputdata))
   logger.info(f"Broker: Published to {topicMissingFieldsOfInputdata}:{json.dumps(payloadMissingFieldsInInputdata)}")  
 
+  # Wait for engine to receive
+  logger.info("Broker waits for 5s")
+  time.sleep(5)
+  logger.info("Broker: done waiting")
+  
+  # Case 9: Invalid input value
+  payloadInvalidInputValue = {
+      "id": "id-invalid-input-value",
+      "numberOfChildren": 3,
+      "familyComposition": "Christmas",
+      "familyUnitInPayForDecember": True
+  }
+
+  topicInvalidInputValue = TopicInput + "topic-id-invalid-input-value" 
+  client.publish(topicInvalidInputValue, json.dumps(payloadInvalidInputValue))
+  logger.info(f"Broker: Published to {topicInvalidInputValue}:{json.dumps(payloadInvalidInputValue)}")  
+
 def on_connect(client, userdata, flags, rc, properties):
   logger.info(f"Broker: connected with result code {rc}")
   client.subscribe(TopicOutput + "#")

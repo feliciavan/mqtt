@@ -171,6 +171,19 @@ class TestOnMessage(unittest.TestCase):
     msg.topic = self.topicInput 
     msg.payload = json.dumps(inputData).encode()
     onMessage(self.mockClient, self.mockUserdata, msg)
+
+  # Case 9: Invalid input value
+  def testInvalidInputValue(self):
+    inputData={
+      "id": "id-invalid-input-value",
+      "numberOfChildren": 3,
+      "familyComposition": "Christmas",
+      "familyUnitInPayForDecember": True
+    }
+    msg = MagicMock()
+    msg.topic = self.topicInput 
+    msg.payload = json.dumps(inputData).encode()
+    onMessage(self.mockClient, self.mockUserdata, msg)
       
 if __name__=="__main__":
   unittest.main()

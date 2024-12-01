@@ -55,15 +55,18 @@ def onMessage(client, userdata, msg):
   if inputData.get("familyUnitInPayForDecember") is False:
     outputData["baseAmount"] = 0.0
     outputData["supplementAmount"] = 0.0
-  elif inputData.get("familyUnitInPayForDecember") and inputData.get("familyComposition") == "single" and outputData["childrenAmount"] == 0:
+  elif inputData.get("familyUnitInPayForDecember") is True and inputData.get("familyComposition") == "single" and outputData["childrenAmount"] == 0:
     outputData["baseAmount"] = 60.0
     outputData["supplementAmount"] = 60.0
-  elif inputData.get("familyUnitInPayForDecember") and inputData.get("familyComposition") == "couple" and outputData["childrenAmount"] == 0:
+  elif inputData.get("familyUnitInPayForDecember") is True and inputData.get("familyComposition") == "couple" and outputData["childrenAmount"] == 0:
     outputData["baseAmount"] = 120.0
     outputData["supplementAmount"] = 120.0
-  elif inputData.get("familyUnitInPayForDecember") and outputData["childrenAmount"] != 0:
+  elif inputData.get("familyUnitInPayForDecember") is True and outputData["childrenAmount"] != 0 and (inputData.get("familyComposition") == "single" or inputData.get("familyComposition") == "couple"):
     outputData["baseAmount"] = 120.0
     outputData["supplementAmount"] = inputData.get("numberOfChildren") * 20.0 + outputData["baseAmount"]
+  else:
+    logger.error("Invalid input value.")
+    return
 
   outputTopic = f"{TopicOutput}{topicID}"
 
